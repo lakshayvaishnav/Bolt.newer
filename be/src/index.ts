@@ -1,19 +1,40 @@
-require("dotenv").config();
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+import dotenv from 'dotenv';
+import express from 'express';
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-async function main() {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const app = express();
+dotenv.config();
+app.use(express.json());
 
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+app.post('/template', async (req: any, res: any) => {
+    const prompt = req.body.prompt;
 
-  const prompt = "";
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-  const result = await model.generateContentStream(prompt);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-  for await (const chunk of result.stream) {
-    const chunkText = chunk.text();
-    process.stdout.write(chunkText);
-  }
-}
+    const result = await model.generateContent({
+        contents: [
+            {
+                role: 'user',
+                parts: [
+                    {
+                        text: prompt,
+                    },
+                ],
+            },
+        ],
+        generationConfig: {
+            maxOutputTokens: 1000,
+            temperature: 0.1,
+        },
+    });
 
-main(); 
+    const answer = result.response.text();
+    console.log('✅ this is the answer : ', answer);
+    return res.json({ 'message : ': answer });
+});
+
+app.listen(3000, () => {
+    console.log('proj running on 3000');
+});
