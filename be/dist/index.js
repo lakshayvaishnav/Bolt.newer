@@ -22,7 +22,7 @@ function main() {
         var _a, e_1, _b, _c;
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const prompt = "create a simple todo application in nextjs";
+        const prompt = [{ role: "user", content: "create a todo application" }, { role: "user", content: "the application should use framer motion to add beautiful animtion" }];
         const result = yield model.generateContentStream(prompt);
         try {
             for (var _d = true, _e = __asyncValues(result.stream), _f; _f = yield _e.next(), _a = _f.done, !_a; _d = true) {
