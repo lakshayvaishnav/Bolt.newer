@@ -14,6 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
+const message_1 = require("./message");
+const react_1 = require("./defaults/react");
+const node_1 = require("./defaults/node");
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const app = (0, express_1.default)();
 dotenv_1.default.config();
@@ -34,13 +37,50 @@ app.post('/template', (req, res) => __awaiter(void 0, void 0, void 0, function* 
             },
         ],
         generationConfig: {
-            maxOutputTokens: 1000,
+            maxOutputTokens: 8000,
             temperature: 0.1,
         },
     });
-    const answer = result.response.text();
-    console.log('✅ this is the answer : ', answer);
-    return res.json({ 'message : ': answer });
+    const answer = result.response.text().trim();
+    if (answer.includes('react')) {
+        res.json({
+            prompts: [
+                message_1.message2,
+                `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${react_1.reactBasePrompt}\n\nHere is a list of files that exist on the file system but are not being shown to you:\n\n  - .gitignore\n  - package-lock.json\n`,
+            ],
+            uiPrompts: [react_1.reactBasePrompt],
+        });
+        return;
+    }
+    if (answer.includes('node')) {
+        res.json({
+            prompts: [
+                `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${node_1.nodeBasePrompt}\n\nHere is a list of files that exist on the file system but are not being shown to you:\n\n  - .gitignore\n  - package-lock.json\n`,
+            ],
+            uiPrompts: [node_1.nodeBasePrompt],
+        });
+        return;
+    }
+    res.status(403).json({
+        message: "You can't access this",
+        answer: answer,
+    });
+    return;
+}));
+app.post('/chat', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const messages = req.body.messages;
+    if (!process.env.GEMINI_API_KEY) {
+        throw Error('No api key found');
+    }
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = yield genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const result = yield model.generateContent({
+        contents: messages,
+    });
+    console.log('✅ generated content : ', result.response.text().trim());
+    res.json({
+        result: result.response.text().trim(),
+    });
 }));
 app.listen(3000, () => {
     console.log('proj running on 3000');
