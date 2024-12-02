@@ -6,6 +6,7 @@ async function main() {
 
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+
   const prompt = "";
 
   const result = await model.generateContentStream(prompt);
