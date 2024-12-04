@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { FileExplorer } from "../components/FileExplorer";
 import { StatusCard } from "../components/StatusCard";
 import { CodePreview } from "../components/CodePreview";
-import { BuildStatus, FileItem, FileStructure, Step, StepType } from "../types";
+import { BuildStatus, FileItem,  Step, StepType } from "../types";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 import { parseXml } from "../steps";
@@ -22,7 +22,7 @@ export const BuilderPage: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [activeTab, setActiveTab] = useState<"code" | "preview">("code");
-  const [selectedFile, setSelectedFile] = useState<FileStructure | null>(null);
+  const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
 
   // to see the steps of how the app is building...
   const [steps, setSteps] = useState<Step[]>([]);
@@ -135,38 +135,41 @@ export const BuilderPage: React.FC = () => {
         ],
       })),
     });
+    setLoading(false)
     console.log("✅ stepsResponse chat : ", stepsResponse.data);
+
+    
   }
 
-  const filess: FileStructure[] = [
-    {
-      name: "src",
-      type: "directory",
-      children: [
-        { name: "App.tsx", type: "file", content: 'console.log("Hello")' },
-        { name: "index.css", type: "file", content: "/* styles */" },
-        {
-          name: "components",
-          type: "directory",
-          children: [
-            {
-              name: "Button.tsx",
-              type: "file",
-              content: "// Button component",
-            },
-            { name: "Card.tsx", type: "file", content: "// Card component" },
-          ],
-        },
-      ],
-    },
-    {
-      name: "public",
-      type: "directory",
-      children: [
-        { name: "index.html", type: "file", content: "<!DOCTYPE html>" },
-      ],
-    },
-  ];
+  // const filess: FileStructure[] = [
+  //   {
+  //     name: "src",
+  //     type: "directory",
+  //     children: [
+  //       { name: "App.tsx", type: "file", content: 'console.log("Hello")' },
+  //       { name: "index.css", type: "file", content: "/* styles */" },
+  //       {
+  //         name: "components",
+  //         type: "directory",
+  //         children: [
+  //           {
+  //             name: "Button.tsx",
+  //             type: "file",
+  //             content: "// Button component",
+  //           },
+  //           { name: "Card.tsx", type: "file", content: "// Card component" },
+  //         ],
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     name: "public",
+  //     type: "directory",
+  //     children: [
+  //       { name: "index.html", type: "file", content: "<!DOCTYPE html>" },
+  //     ],
+  //   },
+  // ];
 
   return (
     <div className="h-screen flex bg-notion-darker">
@@ -177,7 +180,7 @@ export const BuilderPage: React.FC = () => {
             <StatusCard key={index} status={status} />
           ))}
         </div>
-        <FileExplorer files={filess} onFileSelect={setSelectedFile} />
+        <FileExplorer files={files} onFileSelect={setSelectedFile} />
       </div>
 
       {/* Main Content */}
