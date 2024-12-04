@@ -3,10 +3,12 @@ import express from 'express';
 import { message1, message2 } from './message';
 import { reactBasePrompt } from './defaults/react';
 import { nodeBasePrompt } from './defaults/node';
+import cors from "cors"
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 dotenv.config();
+app.use(cors())
 app.use(express.json());
 
 app.post('/template', async (req: any, res: any) => {
@@ -88,7 +90,7 @@ app.post('/chat', async (req, res) => {
 
     const model = await genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const result = await model.generateContent({
-        contents: messages,
+        contents: messages
     });
 
     console.log('✅ generated content : ', result.response.text().trim());

@@ -1,9 +1,15 @@
 {
     "dependencies": {
         "@google/generative-ai": "^0.21.0",
+        "cors": "^2.8.5",
+        "nodemon": "^3.1.7",
         "typescript": "^5.7.2"
     },
     "scripts": {
-        "dev": "tsc -b && node ./dist/index.js"
+        "dev": "tsc -b && node ./dist/index.js",
+        "nodemon": "tsc -b && nodemon ./dist/index.js"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.17"
     }
 }

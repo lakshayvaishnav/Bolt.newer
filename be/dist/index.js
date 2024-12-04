@@ -17,9 +17,11 @@ const express_1 = __importDefault(require("express"));
 const message_1 = require("./message");
 const react_1 = require("./defaults/react");
 const node_1 = require("./defaults/node");
+const cors_1 = __importDefault(require("cors"));
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const app = (0, express_1.default)();
 dotenv_1.default.config();
+app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.post('/template', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const prompt = req.body.prompt;
@@ -67,6 +69,24 @@ app.post('/template', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     });
     return;
 }));
+/*
+example format for chat api :
+ @dev
+{
+  "messages": [
+    {
+      "role": "user",
+      "parts": [
+        {
+          "text": "For all designs I ask you to make, have them be beautiful, not cookie cutter. Make webpages that are fully featured and worthy for production.\n\nBy default, this template supports JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.\n\nUse icons from lucide-react for logos.\n\nUse stock photos from unsplash where appropriate, only valid URLs you know exist. Do not download the images, only link to them in image tags."
+        },
+        {"text":"create react app using typescript make it todo app and use usestate"
+        }
+      ]
+    }
+  ]
+}
+*/
 app.post('/chat', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const messages = req.body.messages;
     if (!process.env.GEMINI_API_KEY) {
@@ -75,7 +95,7 @@ app.post('/chat', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = yield genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const result = yield model.generateContent({
-        contents: messages,
+        contents: messages
     });
     console.log('✅ generated content : ', result.response.text().trim());
     res.json({
