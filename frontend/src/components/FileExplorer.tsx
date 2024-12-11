@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { ChevronRight, ChevronDown, FileJson, FileCode, FileText, Folder } from 'lucide-react';
-import { FileStructure } from '../types';
+import { FileItem } from '../types';
 import { clsx } from 'clsx';
 
 interface FileExplorerProps {
-  files: FileStructure[];
-  onFileSelect: (file: FileStructure) => void;
+  files: FileItem[];
+  onFileSelect: (file: FileItem) => void;
 }
 
-interface FileItemProps {
-  item: FileStructure;
+interface fileNodeProps {
+  item: FileItem;
   depth: number;
-  onFileSelect: (file: FileStructure) => void;
+  onFileSelect: (file: FileItem) => void;
 }
 
-const FileItem: React.FC<FileItemProps> = ({ item, depth, onFileSelect }) => {
+const FileNode: React.FC<fileNodeProps> = ({ item, depth, onFileSelect }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const getFileIcon = (fileName: string) => {
@@ -24,7 +24,7 @@ const FileItem: React.FC<FileItemProps> = ({ item, depth, onFileSelect }) => {
   };
 
   const handleClick = () => {
-    if (item.type === 'directory') {
+    if (item.type === 'folder') {
       setIsExpanded(!isExpanded);
     } else {
       onFileSelect(item);
@@ -41,7 +41,7 @@ const FileItem: React.FC<FileItemProps> = ({ item, depth, onFileSelect }) => {
         style={{ paddingLeft: `${depth * 1.2}rem` }}
         onClick={handleClick}
       >
-        {item.type === 'directory' && (
+        {item.type === 'folder' && (
           <span className="mr-1">
             {isExpanded ? (
               <ChevronDown className="w-4 h-4 text-notion-dimmed" />
@@ -50,17 +50,17 @@ const FileItem: React.FC<FileItemProps> = ({ item, depth, onFileSelect }) => {
             )}
           </span>
         )}
-        {item.type === 'directory' ? (
+        {item.type === 'folder' ? (
           <Folder className="w-4 h-4 text-notion-dimmed mr-2" />
         ) : (
           <span className="mr-2">{getFileIcon(item.name)}</span>
         )}
         <span className="text-sm">{item.name}</span>
       </div>
-      {item.type === 'directory' && isExpanded && item.children && (
+      {item.type === 'folder' && isExpanded && item.children && (
         <div>
           {item.children.map((child, index) => (
-            <FileItem
+            <FileNode
               key={`${child.name}-${index}`}
               item={child}
               depth={depth + 1}
@@ -81,7 +81,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ files, onFileSelect 
       </h3>
       <div className="py-2">
         {files.map((file, index) => (
-          <FileItem
+          <FileNode
             key={`${file.name}-${index}`}
             item={file}
             depth={1}
